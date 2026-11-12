@@ -1,0 +1,15 @@
+{
+  "name": "agent-bulldog",
+  "version": "0.1.0",
+  "description": "Agent Bulldog — a generalized AI negotiation agent that lowers your subscription and service bills (Kiroween 2026, Frankenstein category)",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
