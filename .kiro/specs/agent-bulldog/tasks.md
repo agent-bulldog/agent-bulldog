@@ -20,7 +20,7 @@
 - [x] T5.2: Wire approval gate to CLI (R1, R8)
 
 (f) **Savings report**
-- [ ] T6.1: Implement `src/savings.js` for tracking and reporting (R10, R11)
+- [x] T6.1: Implement `src/savings.js` for tracking and reporting (R10, R11)
 
 (g) **Smoke tests**
 - [ ] T7.1: Test connector interface contract (R1)

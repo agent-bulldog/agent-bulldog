@@ -10,11 +10,12 @@
  *   compare <service>         Compare current bill against industry prices
  *   negotiate <service> --angle "..."  Execute negotiation attempt under approval
  *   approve <service> <action> [options]  Execute an approved action
- *   report                    Display estimated savings report (Coming soon)
+ *   report                    Display estimated savings report
  * 
  * Options:
  *   --angle <text>            Negotiation angle for negotiation command
  *   --rate <number>           Rate for apply-offer action
+ *   --savings-file <path>     Path to savings store file (for testing)
  *   --help                    Show this help message
  * 
  * Approval commands:
@@ -32,9 +33,13 @@ const { createGate } = require('./approval/gate');
 const { compareBill } = require('./comparison/indexer');
 const { negotiateOnce } = require('./negotiation/engine');
 const { nextRetryTime } = require('./negotiation/scheduler');
+const { createSavingsTracker, DEFAULT_STORE_PATH } = require('./savings');
 
 // Global approval gate instance
 const approvalGate = createGate();
+
+// Savings tracker instance (will be set from command line option in main)
+let savingsTracker = null;
 
 /**
  * Shows usage information
@@ -51,7 +56,13 @@ Commands:
   compare <service>         Compare current bill against industry prices
   negotiate <service> --angle "..."  Execute negotiation attempt under approval
   approve <service> <action> [options]  Execute an approved action
-  report                    Display estimated savings report (Coming soon)
+  report                    Display estimated savings report
+
+Options:
+  --angle <text>            Negotiation angle for negotiation command
+  --rate <number>           Rate for apply-offer action
+  --savings-file <path>     Path to savings store file (for testing)
+  --help                    Show this help message
 
 Options:
   --angle <text>            Negotiation angle for negotiation command
@@ -233,9 +244,10 @@ async function handleNegotiate(serviceName, angle) {
  * @param {string} action - The action to approve (negotiate, apply-offer, cancel)
  * @param {string|null} angle - The negotiation angle (for negotiate action)
  * @param {number|null} rate - The rate for apply-offer action
+ * @param {string|null} savingsFilePath - Path to savings store file (for testing)
  * @returns {Promise<number>} - Exit code (0 for success, 1 for error)
  */
-async function handleApprove(serviceName, action, angle, rate) {
+async function handleApprove(serviceName, action, angle, rate, savingsFilePath) {
   // Validate service name
   if (!serviceName) {
     console.error('Error: Service name is required. Usage: node src/cli.js approve <service> <action> [options]');
@@ -354,6 +366,19 @@ async function handleApprove(serviceName, action, angle, rate) {
     console.log(`Savings: $${(currentBill.monthlyCost - rate).toFixed(2)}/month`);
     console.log(`Confirmation: Offer has been applied successfully.`);
 
+    // Record the saving
+    const planName = currentBill.plan || `${serviceName} service`;
+    const savingResult = savingsTracker.recordSaving(serviceName, {
+      previousMonthlyCost: currentBill.monthlyCost,
+      newMonthlyCost: rate,
+      plan: planName,
+      approvalId: approval.id
+    });
+
+    if (savingResult.error) {
+      console.error(`Warning: Failed to record saving: ${savingResult.message}`);
+    }
+
     return 0;
   }
 
@@ -373,12 +398,44 @@ function handleUnknownCommand(command) {
 }
 
 /**
- * Handles the report command (not yet implemented)
- * @returns {Promise<number>} - Exit code (1 for not implemented)
+ * Handles the report command
+ * @param {string|null} savingsFilePath - Path to savings store file (for testing)
+ * @returns {Promise<number>} - Exit code (0 for success, 0 for no savings, 1 for error)
  */
-function handleReport() {
-  console.error('Savings report is not yet available');
-  return 1;
+function handleReport(savingsFilePath) {
+  // Initialize savings tracker
+  const tracker = createSavingsTracker({ filePath: savingsFilePath });
+  
+  // Get report
+  const report = tracker.getReport();
+  
+  // Check if there are any savings
+  if (report.totals.monthlySavings === 0 && report.totals.annualSavings === 0) {
+    console.log('\nNo savings recorded yet. Run negotiations and apply offers to start tracking savings.\n');
+    return 0;
+  }
+
+  console.log('\n=== Estimated Savings Report ===\n');
+  
+  // Per-service breakdown
+  console.log('By Service:');
+  const services = Object.keys(report.byService).sort();
+  for (const service of services) {
+    const data = report.byService[service];
+    console.log(`  ${service}:`);
+    console.log(`    Monthly savings: $${data.monthlySavings.toFixed(2)}`);
+    console.log(`    Annual savings:  $${data.annualSavings.toFixed(2)}`);
+    console.log(`    Offer count:     ${data.count}`);
+  }
+  
+  // Totals
+  console.log('\nTotals:');
+  console.log(`  Monthly savings: $${report.totals.monthlySavings.toFixed(2)}`);
+  console.log(`  Annual savings:  $${report.totals.annualSavings.toFixed(2)}`);
+  console.log(`  Services:        ${report.totals.serviceCount}`);
+  console.log();
+
+  return 0;
 }
 
 /**
@@ -423,11 +480,20 @@ async function main() {
       const angle = angleArg ? args[args.indexOf(angleArg) + 1] : null;
       const rateArg = args.find((arg, idx) => arg === '--rate' && idx < args.length - 1);
       const rate = rateArg ? parseFloat(args[args.indexOf(rateArg) + 1]) : null;
-      return await handleApprove(serviceName, action, angle, rate);
+      const savingsFileArg = args.find((arg, idx) => arg === '--savings-file' && idx < args.length - 1);
+      const savingsFilePath = savingsFileArg ? args[args.indexOf(savingsFileArg) + 1] : null;
+      // Initialize savings tracker if not yet done
+      if (!savingsTracker) {
+        savingsTracker = createSavingsTracker({ filePath: savingsFilePath });
+      }
+      return await handleApprove(serviceName, action, angle, rate, savingsFilePath);
     }
 
-    case 'report':
-      return handleReport();
+    case 'report': {
+      const savingsFileArg = args.find((arg, idx) => arg === '--savings-file' && idx < args.length - 1);
+      const savingsFilePath = savingsFileArg ? args[args.indexOf(savingsFileArg) + 1] : null;
+      return handleReport(savingsFilePath);
+    }
 
     default:
       return handleUnknownCommand(command);
