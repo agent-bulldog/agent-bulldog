@@ -110,6 +110,27 @@ async function runTests() {
     console.log(`✓ ${testDescription}`);
   }
 
+  // Test 8: currentBill error returns error object
+  {
+    const testDescription = 'currentBill error returns error object';
+    const { negotiateOnce } = require('../../src/negotiation/engine');
+    const { getConnector } = require('../../src/connectors/index');
+    
+    // Temporarily replace the streaming connector's currentBill method with one that returns error
+    const originalCurrentBill = require('../../src/connectors/streaming').currentBill;
+    require('../../src/connectors/streaming').currentBill = async () => ({ error: true, message: 'Test error' });
+    
+    const result = await negotiateOnce('streaming', 'loyalty', null);
+    
+    assert.ok(result.error, 'Should return error');
+    assert.ok(result.message.includes('Failed to get current bill'), 'Error should mention current bill failure');
+    
+    // Restore original method
+    require('../../src/connectors/streaming').currentBill = originalCurrentBill;
+    
+    console.log(`✓ ${testDescription}`);
+  }
+
   console.log('\nAll negotiation engine tests passed!');
 }
 

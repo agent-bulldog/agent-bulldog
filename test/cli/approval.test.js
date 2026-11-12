@@ -8,6 +8,8 @@
 const assert = require('node:assert');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
 
 async function runTests() {
   console.log('=== CLI Approval Tests ===\n');
@@ -240,9 +242,15 @@ async function runTests() {
     console.log(`✓ ${testDescription}`);
   }
 
-  // Test 9: report exits 1 with not-yet-available message
+  // Test 9: report exits 0 with friendly message when no savings
   {
-    const testDescription = 'report exits 1 with not-yet-available message';
+    const testDescription = 'report exits 0 with friendly message when no savings';
+    // Clean up savings file first
+    const savingsFile = path.join(require('os').homedir(), '.agent-bulldog', 'savings.json');
+    if (fs.existsSync(savingsFile)) {
+      fs.unlinkSync(savingsFile);
+    }
+    
     const child = spawn('node', [cliPath, 'report']);
     
     let output = '';
@@ -263,8 +271,9 @@ async function runTests() {
       });
     });
     
-    assert.strictEqual(exitCode, 1, 'Should exit with code 1');
-    assert.ok(output.includes('not yet available'), 'Output should mention not yet available');
+    assert.strictEqual(exitCode, 0, 'Should exit with code 0');
+    assert.ok(output.includes('No savings recorded yet'), 'Output should show friendly message');
+    assert.ok(output.includes('Run negotiations and apply offers'), 'Output should suggest next steps');
     
     console.log(`✓ ${testDescription}`);
   }
