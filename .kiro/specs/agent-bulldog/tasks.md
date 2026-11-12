@@ -16,8 +16,8 @@
 - [x] T4.2: Add `cancel-preview` CLI command (R7) — added `src/cli.js` with `cancel-preview <service>` command and `test/cli/cancel-preview.test.js`
 
 (e) **Approval gate + CLI**
-- [ ] T5.1: Implement `src/approval/gate.js` (R8)
-- [ ] T5.2: Wire approval gate to CLI (R1, R8)
+- [x] T5.1: Implement `src/approval/gate.js` (R8)
+- [x] T5.2: Wire approval gate to CLI (R1, R8)
 
 (f) **Savings report**
 - [ ] T6.1: Implement `src/savings.js` for tracking and reporting (R10, R11)

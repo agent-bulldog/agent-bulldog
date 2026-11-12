@@ -32,6 +32,15 @@ async function negotiateOnce(serviceName, angle, credentials) {
   try {
     // Get current bill to compare against offer
     const currentBill = await connector.currentBill(credentials);
+    
+    // Guard against currentBill returning an error object
+    if (currentBill.error) {
+      return {
+        error: true,
+        message: `Failed to get current bill for service "${serviceName}": ${currentBill.message}`
+      };
+    }
+    
     const currentMonthlyCost = currentBill.monthlyCost;
     
     // Execute negotiation attempt
