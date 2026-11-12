@@ -33,6 +33,11 @@ function createSavingsTracker(options = {}) {
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8');
       entries = JSON.parse(data);
+      
+      // Guard against non-array JSON
+      if (!Array.isArray(entries)) {
+        entries = [];
+      }
     }
   } catch (err) {
     // If file is corrupted or unreadable, start fresh

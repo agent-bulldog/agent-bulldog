@@ -23,12 +23,12 @@
 - [x] T6.1: Implement `src/savings.js` for tracking and reporting (R10, R11)
 
 (g) **Smoke tests**
-- [ ] T7.1: Test connector interface contract (R1)
-- [ ] T7.2: Test comparison with fixture data (R2, R9)
-- [ ] T7.3: Test negotiation engine (R3, R4, R5, R6)
-- [ ] T7.4: Test bluff-cancel preview (R7)
-- [ ] T7.5: Test approval gate (R8)
-- [ ] T7.6: Test savings report (R10, R11)
-- [ ] T7.7: Test CLI commands end-to-end (R1, R2, R3, R7, R10, R11, R12)
+- [x] T7.1: Test connector interface contract (R1)
+- [x] T7.2: Test comparison with fixture data (R2, R9)
+- [x] T7.3: Test negotiation engine (R3, R4, R5, R6)
+- [x] T7.4: Test bluff-cancel preview (R7)
+- [x] T7.5: Test approval gate (R8)
+- [x] T7.6: Test savings report (R10, R11)
+- [x] T7.7: Test CLI commands end-to-end (R1, R2, R3, R7, R10, R11, R12)
 
 Implementation is a separate step; do not write application code now.
