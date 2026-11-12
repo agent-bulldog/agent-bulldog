@@ -12,8 +12,8 @@
 - [x] T3.2: Implement `src/negotiation/scheduler.js` for retries with fresh angles (R4, R5, R6)
 
 (d) **Bluff-cancel flow**
-- [ ] T4.1: Implement `cancelFlowPreview` in streaming connector (R7)
-- [ ] T4.2: Add `cancel-preview` CLI command (R7)
+- [x] T4.1: Implement `cancelFlowPreview` in streaming connector (R7) — already existed in streaming.js; verified R7 compliance (returns `confirmed: false` after 4 steps to $12.99 retention offer)
+- [x] T4.2: Add `cancel-preview` CLI command (R7) — added `src/cli.js` with `cancel-preview <service>` command and `test/cli/cancel-preview.test.js`
 
 (e) **Approval gate + CLI**
 - [ ] T5.1: Implement `src/approval/gate.js` (R8)
