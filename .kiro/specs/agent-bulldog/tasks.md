@@ -8,8 +8,8 @@
 - [x] T2.1: Implement `src/comparison/indexer.js` to fetch and compare prices (R2, R9)
 
 (c) **Negotiation engine + retry scheduler**
-- [ ] T3.1: Implement `src/negotiation/engine.js` for single negotiation attempt (R3, R4, R6)
-- [ ] T3.2: Implement `src/negotiation/scheduler.js` for retries with fresh angles (R4, R5, R6)
+- [x] T3.1: Implement `src/negotiation/engine.js` for single negotiation attempt (R3, R4, R6)
+- [x] T3.2: Implement `src/negotiation/scheduler.js` for retries with fresh angles (R4, R5, R6)
 
 (d) **Bluff-cancel flow**
 - [ ] T4.1: Implement `cancelFlowPreview` in streaming connector (R7)
