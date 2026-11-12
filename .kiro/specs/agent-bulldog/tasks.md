@@ -5,7 +5,7 @@
 - [x] T1.2: Implement `src/connectors/streaming.js` with fixture data (R1, R12)
 
 (b) **Price comparison**
-- [ ] T2.1: Implement `src/comparison/indexer.js` to fetch and compare prices (R2, R9)
+- [x] T2.1: Implement `src/comparison/indexer.js` to fetch and compare prices (R2, R9)
 
 (c) **Negotiation engine + retry scheduler**
 - [ ] T3.1: Implement `src/negotiation/engine.js` for single negotiation attempt (R3, R4, R6)
